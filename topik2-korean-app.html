@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f0f14">
+<title>한국어 TOPIK II</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0f0f14;--bg2:#16161e;--bg3:#1e1e28;--surface:#22222e;--surface2:#2a2a38;
+  --accent:#e8b86d;--accent2:#c8855a;--green:#5ec997;--blue:#6ba3e8;--red:#e86d6d;--purple:#a87de8;
+  --text:#f0ede8;--text2:#a09a90;--text3:#6a6460;
+  --radius:14px;--radius-sm:8px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;overflow-x:hidden}
+button{cursor:pointer;border:none;background:none;color:inherit;font-family:inherit}
+.screen{display:none;min-height:100vh;padding-bottom:80px}
+.screen.active{display:block}
+.nav{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid rgba(255,255,255,.06);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+.nav-btn{flex:1;padding:10px 0 8px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--text3);transition:.2s}
+.nav-btn.active{color:var(--accent)}
+.nav-btn svg{width:22px;height:22px}
+
+/* HOME */
+.home-header{padding:56px 20px 20px;background:linear-gradient(180deg,#1a1520 0%,var(--bg) 100%)}
+.streak-row{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.streak-badge{background:linear-gradient(135deg,#ff6b35,#e8b86d);border-radius:50px;padding:6px 14px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:5px}
+.xp-bar-wrap{background:var(--surface);border-radius:50px;height:8px;flex:1;overflow:hidden}
+.xp-bar{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:50px;transition:.5s}
+.level-badge{font-size:11px;color:var(--accent);font-weight:700;white-space:nowrap}
+.greeting{font-size:24px;font-weight:900;line-height:1.2;margin-bottom:4px}
+.greeting span{color:var(--accent)}
+.subgreet{font-size:13px;color:var(--text2)}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:16px 20px 0}
+.stat-card{background:var(--surface);border-radius:var(--radius);padding:14px 10px;text-align:center}
+.stat-n{font-size:22px;font-weight:900;color:var(--accent)}
+.stat-l{font-size:11px;color:var(--text2);margin-top:2px}
+.section-title{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:.08em;text-transform:uppercase;padding:20px 20px 10px}
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 20px}
+.mode-card{background:var(--surface);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;border:1px solid transparent;transition:.2s;cursor:pointer}
+.mode-card:active{transform:scale(.97)}
+.mode-card.featured{grid-column:1/-1;flex-direction:row;align-items:center;gap:16px;background:linear-gradient(135deg,#1f1830,#16162a);border-color:rgba(168,125,232,.3)}
+.mode-icon{font-size:28px}
+.mode-title{font-size:14px;font-weight:700}
+.mode-desc{font-size:11px;color:var(--text2);line-height:1.4}
+.daily-missions{padding:0 20px;display:flex;flex-direction:column;gap:8px}
+.mission{background:var(--surface);border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:12px}
+.mission-info{flex:1}
+.mission-name{font-size:13px;font-weight:700}
+.mission-prog{font-size:11px;color:var(--text2);margin-top:2px}
+.mission-bar{height:4px;background:var(--surface2);border-radius:50px;margin-top:6px;overflow:hidden}
+.mission-fill{height:100%;background:var(--green);border-radius:50px;transition:.4s}
+.mission-xp{font-size:12px;color:var(--accent);font-weight:700;white-space:nowrap}
+
+/* VOCAB */
+.vocab-top{padding:56px 20px 20px;display:flex;flex-direction:column;gap:12px}
+.vocab-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.vocab-tabs::-webkit-scrollbar{display:none}
+.vtab{background:var(--surface);border-radius:50px;padding:6px 14px;font-size:12px;font-weight:700;white-space:nowrap;color:var(--text2);transition:.2s}
+.vtab.active{background:var(--accent);color:#000}
+.flashcard-wrap{padding:0 20px}
+.flashcard{background:var(--surface);border-radius:20px;min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 24px;cursor:pointer;position:relative;border:1px solid rgba(255,255,255,.06)}
+.flashcard-inner{width:100%;transition:transform .5s;transform-style:preserve-3d;position:relative;min-height:220px;perspective:1000px}
+.flashcard.flipped .flashcard-inner{transform:rotateY(180deg)}
+.fc-front,.fc-back{position:absolute;width:100%;backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:10px 0}
+.fc-back{transform:rotateY(180deg)}
+.fc-kr{font-size:48px;font-weight:900;letter-spacing:-1px}
+.fc-rom{font-size:13px;color:var(--text2);font-family:'Space Mono',monospace}
+.fc-zh{font-size:24px;font-weight:700;color:var(--accent)}
+.fc-example{font-size:13px;color:var(--text2);text-align:center;line-height:1.7;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08);width:100%}
+.fc-hint{font-size:11px;color:var(--text3);margin-top:8px}
+.fc-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:14px 20px}
+.fc-btn{padding:14px 0;border-radius:var(--radius-sm);font-size:13px;font-weight:700;transition:.2s}
+.fc-btn:active{transform:scale(.95)}
+.fc-btn.hard{background:rgba(232,109,109,.15);color:var(--red)}
+.fc-btn.ok{background:rgba(107,163,232,.15);color:var(--blue)}
+.fc-btn.good{background:rgba(94,201,151,.15);color:var(--green)}
+.vocab-progress{display:flex;align-items:center;gap:10px;padding:0 20px 10px;font-size:12px;color:var(--text2)}
+.vp-bar{flex:1;height:4px;background:var(--surface);border-radius:50px;overflow:hidden}
+.vp-fill{height:100%;background:var(--accent);border-radius:50px}
+
+/* REVIEW LIST */
+.review-section{padding:0 20px;margin-top:8px}
+.review-header{font-size:13px;font-weight:700;color:var(--red);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.review-item{background:var(--surface);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.review-kr{font-size:16px;font-weight:700}
+.review-zh{font-size:13px;color:var(--text2)}
+
+/* READING / QUIZ */
+.reading-top{padding:56px 20px 16px}
+.reading-cats{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:0 20px 4px}
+.reading-cats::-webkit-scrollbar{display:none}
+.rcat{background:var(--surface);border-radius:50px;padding:7px 14px;font-size:12px;font-weight:700;white-space:nowrap;color:var(--text2);transition:.2s}
+.rcat.active{background:var(--purple);color:#fff}
+.reading-card{margin:0 20px 16px;background:var(--surface);border-radius:var(--radius);padding:18px;border:1px solid rgba(255,255,255,.06)}
+.reading-passage{font-size:15px;line-height:2;color:var(--text);margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.08)}
+.reading-q{font-size:14px;font-weight:700;margin-bottom:10px}
+.reading-opts{display:flex;flex-direction:column;gap:8px}
+.reading-opt{padding:11px 14px;background:var(--bg3);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;border:2px solid transparent;transition:.2s;text-align:left}
+.reading-opt:active{transform:scale(.98)}
+.reading-opt.selected{border-color:var(--accent)}
+.reading-opt.correct{background:rgba(94,201,151,.15);border-color:var(--green);color:var(--green)}
+.reading-opt.wrong{background:rgba(232,109,109,.1);border-color:var(--red);color:var(--red)}
+.reading-explain{margin-top:12px;padding:12px;background:var(--bg3);border-radius:var(--radius-sm);font-size:13px;color:var(--text2);line-height:1.7;display:none}
+.reading-explain.open{display:block}
+.reading-next{width:100%;margin-top:10px;padding:12px;background:var(--purple);color:#fff;border-radius:var(--radius-sm);font-size:14px;font-weight:700;display:none}
+.reading-next.show{display:block}
+
+/* GAMES */
+.games-top{padding:56px 20px 20px}
+.game-list{padding:0 20px;display:flex;flex-direction:column;gap:12px}
+.game-card{background:var(--surface);border-radius:var(--radius);padding:18px;display:flex;gap:14px;align-items:center;border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:.2s}
+.game-card:active{transform:scale(.98)}
+.game-icon{font-size:36px;width:56px;text-align:center}
+.game-info{flex:1}
+.game-name{font-size:15px;font-weight:700}
+.game-desc{font-size:12px;color:var(--text2);margin-top:3px;line-height:1.4}
+.game-score{font-size:12px;color:var(--accent);margin-top:4px;font-weight:700}
+.game-arrow{color:var(--text3);font-size:18px}
+.game-screen{position:fixed;inset:0;background:var(--bg);z-index:150;display:none;flex-direction:column}
+.game-screen.open{display:flex}
+.game-header{padding:56px 20px 16px;display:flex;align-items:center;gap:12px}
+.game-back{font-size:20px;padding:4px 8px;color:var(--text2)}
+.game-title{font-size:18px;font-weight:900;flex:1}
+
+/* MATCH GAME */
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px;flex:1;align-content:start}
+.match-card{background:var(--surface);border-radius:var(--radius-sm);padding:12px 8px;text-align:center;font-size:15px;font-weight:700;cursor:pointer;border:2px solid transparent;transition:.2s;min-height:52px;display:flex;align-items:center;justify-content:center;line-height:1.3}
+.match-card.selected{border-color:var(--accent);background:rgba(232,184,109,.1)}
+.match-card.matched{border-color:var(--green);background:rgba(94,201,151,.1);color:var(--green);opacity:.6;pointer-events:none}
+.match-card.wrong{border-color:var(--red);animation:shake .3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* TYPING GAME — no timer, manual next */
+.typing-area{padding:16px 20px;flex:1;display:flex;flex-direction:column;gap:14px;overflow-y:auto}
+.typing-prompt{background:var(--surface);border-radius:var(--radius);padding:20px;text-align:center}
+.typing-zh{font-size:24px;font-weight:900;margin-bottom:6px}
+.typing-hint-rom{font-size:13px;color:var(--text2)}
+.typing-input{width:100%;background:var(--surface2);border:2px solid rgba(255,255,255,.1);border-radius:var(--radius-sm);padding:14px;font-size:22px;font-family:'Noto Sans KR',sans-serif;color:var(--text);text-align:center}
+.typing-input:focus{outline:none;border-color:var(--blue)}
+.typing-answer-reveal{text-align:center;padding:14px;border-radius:var(--radius-sm);font-size:18px;font-weight:700;min-height:52px;background:var(--surface);display:none}
+.typing-answer-reveal.show{display:block}
+.typing-answer-reveal.ok{color:var(--green)}
+.typing-answer-reveal.bad{color:var(--red)}
+.typing-score-row{display:flex;justify-content:space-around}
+.typing-score-item{text-align:center}
+.typing-score-n{font-size:24px;font-weight:900;color:var(--accent)}
+.typing-score-l{font-size:11px;color:var(--text2)}
+.typing-check-btn{padding:13px;background:var(--blue);color:#fff;border-radius:var(--radius);font-size:15px;font-weight:700}
+.typing-next-btn{padding:13px;background:var(--surface2);color:var(--text);border-radius:var(--radius);font-size:15px;font-weight:700;display:none}
+.typing-next-btn.show{display:block}
+
+/* SENTENCE SCRAMBLE */
+.scramble-area{padding:16px 20px;flex:1;display:flex;flex-direction:column;gap:14px}
+.scramble-zh{font-size:18px;font-weight:700;text-align:center;padding:16px;background:var(--surface);border-radius:var(--radius)}
+.scramble-drop{min-height:56px;background:var(--surface2);border:2px dashed rgba(255,255,255,.15);border-radius:var(--radius-sm);padding:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.scramble-tokens-wrap{display:flex;flex-wrap:wrap;gap:8px;padding:12px 0}
+.scramble-token{background:var(--surface);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius-sm);padding:8px 14px;font-size:15px;font-weight:700;cursor:pointer;transition:.2s}
+.scramble-token:active{transform:scale(.95)}
+.scramble-token.used{opacity:.3;pointer-events:none}
+.scramble-token.placed{background:rgba(232,184,109,.15);border-color:var(--accent);cursor:pointer}
+.scramble-result{padding:12px;border-radius:var(--radius-sm);font-size:14px;font-weight:700;display:none;text-align:center}
+.scramble-result.show{display:block}
+.scramble-result.ok{background:rgba(94,201,151,.15);color:var(--green)}
+.scramble-result.bad{background:rgba(232,109,109,.1);color:var(--red)}
+
+/* SPEAKING */
+.speaking-top{padding:56px 20px 20px}
+.speak-tabs{display:flex;gap:8px;margin-bottom:16px}
+.speak-tab{flex:1;padding:8px;background:var(--surface);border-radius:var(--radius-sm);font-size:13px;font-weight:700;text-align:center;color:var(--text2);transition:.2s}
+.speak-tab.active{background:var(--accent2);color:#fff}
+.shadowing-card{margin:0 20px;background:var(--surface);border-radius:var(--radius);padding:20px;margin-bottom:12px}
+.shadow-kr{font-size:26px;font-weight:900;text-align:center;margin-bottom:6px}
+.shadow-rom{font-size:13px;color:var(--text2);text-align:center;font-family:'Space Mono',monospace;margin-bottom:4px}
+.shadow-zh{font-size:17px;color:var(--accent);text-align:center;margin-bottom:16px}
+.speak-btn{width:100%;padding:14px;border-radius:var(--radius);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s}
+.speak-btn.play{background:var(--blue);color:#fff;margin-bottom:8px}
+.speak-btn.record{background:var(--red);color:#fff}
+.speak-btn.recording{animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.speak-btn:active{transform:scale(.97)}
+.speak-result{margin:10px 20px 0;background:var(--surface);border-radius:var(--radius-sm);padding:14px;font-size:13px;color:var(--text2);line-height:1.6;display:none}
+.speak-result.open{display:block}
+.conv-area{padding:0 20px}
+.conv-messages{background:var(--surface);border-radius:var(--radius);padding:14px;height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
+.msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.6}
+.msg.ai{background:var(--bg3);align-self:flex-start;border-bottom-left-radius:4px}
+.msg.user{background:rgba(232,184,109,.15);border:1px solid rgba(232,184,109,.2);align-self:flex-end;border-bottom-right-radius:4px}
+.msg .ko{font-weight:700}
+.msg .zh{font-size:11px;color:var(--text2);margin-top:3px}
+.conv-input-row{display:flex;gap:8px;align-items:flex-end}
+.conv-input{flex:1;background:var(--surface);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:14px;font-family:'Noto Sans KR',sans-serif;resize:none;max-height:80px}
+.conv-input:focus{outline:none;border-color:var(--accent2)}
+.conv-send{background:var(--accent2);color:#fff;border-radius:var(--radius-sm);padding:10px 14px;font-size:14px;font-weight:700;white-space:nowrap}
+.conv-speak-btn{background:var(--surface2);color:var(--text2);border-radius:var(--radius-sm);padding:10px 12px;font-size:16px}
+
+/* PROFILE */
+.profile-top{padding:56px 20px 24px;text-align:center}
+.avatar{width:80px;height:80px;background:linear-gradient(135deg,var(--accent2),var(--purple));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 12px}
+.profile-name{font-size:20px;font-weight:900}
+.profile-level{font-size:13px;color:var(--accent);margin-top:2px}
+.profile-xp-wrap{margin:16px 20px 0}
+.profile-xp-bar{height:10px;background:var(--surface);border-radius:50px;overflow:hidden;margin-top:6px}
+.profile-xp-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:50px;transition:.5s}
+.profile-xp-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text2)}
+.big-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px 20px}
+.big-stat{background:var(--surface);border-radius:var(--radius);padding:16px;text-align:center}
+.big-stat-n{font-size:32px;font-weight:900;color:var(--accent)}
+.big-stat-l{font-size:12px;color:var(--text2);margin-top:4px}
+.heatmap-wrap{padding:0 20px 16px}
+.heatmap-title{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px}
+.heatmap{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
+.hm-cell{aspect-ratio:1;border-radius:3px;background:var(--surface)}
+.hm-cell.l1{background:rgba(232,184,109,.2)}
+.hm-cell.l2{background:rgba(232,184,109,.5)}
+.hm-cell.l3{background:rgba(232,184,109,.8)}
+.hm-cell.l4{background:var(--accent)}
+.badges-wrap{padding:0 20px 20px}
+.badges-title{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px}
+.badges-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.badge-item{aspect-ratio:1;background:var(--surface);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:22px}
+.badge-item.locked{opacity:.3;filter:grayscale(1)}
+.badge-label{font-size:9px;color:var(--text2);text-align:center}
+
+/* TOAST — bottom, never blocks content */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid rgba(255,255,255,.1);color:var(--text);padding:10px 20px;border-radius:50px;font-size:13px;font-weight:700;z-index:999;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* XP POPUP — top area, never blocks cards */
+.xp-popup{position:fixed;top:60px;right:16px;transform:scale(.5) translateX(40px);opacity:0;z-index:998;pointer-events:none;transition:.35s cubic-bezier(.34,1.56,.64,1)}
+.xp-popup.show{opacity:1;transform:scale(1) translateX(0)}
+.xp-popup-inner{background:var(--surface2);border:1px solid var(--accent);color:var(--accent);font-size:14px;font-weight:900;padding:8px 16px;border-radius:50px}
+
+/* RESULT */
+.result-screen{position:fixed;inset:0;background:var(--bg);z-index:160;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px}
+.result-screen.open{display:flex}
+.result-emoji{font-size:72px}
+.result-title{font-size:28px;font-weight:900;text-align:center}
+.result-score{font-size:48px;font-weight:900;color:var(--accent)}
+.result-label{font-size:14px;color:var(--text2);text-align:center}
+.result-btns{display:flex;flex-direction:column;gap:8px;width:100%;margin-top:8px}
+.result-btn{padding:14px;border-radius:var(--radius);font-size:15px;font-weight:700;text-align:center}
+.result-btn.primary{background:var(--accent);color:#000}
+.result-btn.secondary{background:var(--surface);color:var(--text)}
+
+.loading{display:flex;align-items:center;gap:8px;color:var(--text2);font-size:13px;padding:10px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--text2);animation:blink 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}
+.dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div class="screen active" id="screen-home">
+  <div class="home-header">
+    <div class="streak-row">
+      <div class="streak-badge">🔥 <span id="streak-count">0</span> 天</div>
+      <div class="xp-bar-wrap"><div class="xp-bar" id="xp-bar" style="width:0%"></div></div>
+      <div class="level-badge">Lv <span id="level-num">1</span></div>
+    </div>
+    <div class="greeting">안녕하세요！<br><span id="greeting-text">今天繼續加油</span>🇰🇷</div>
+    <div class="subgreet">TOPIK II 備考中</div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-n" id="stat-words">0</div><div class="stat-l">已學單字</div></div>
+    <div class="stat-card"><div class="stat-n" id="stat-accuracy">-</div><div class="stat-l">正確率</div></div>
+    <div class="stat-card"><div class="stat-n" id="stat-xp">0</div><div class="stat-l">總XP</div></div>
+  </div>
+  <div class="section-title">學習模組</div>
+  <div class="mode-cards">
+    <div class="mode-card featured" onclick="goScreen('vocab')">
+      <div class="mode-icon">📚</div>
+      <div><div class="mode-title">單字卡練習</div><div class="mode-desc">TOPIK II 必考單字，間隔記憶系統</div></div>
+    </div>
+    <div class="mode-card" onclick="goScreen('reading')">
+      <div class="mode-icon">📖</div>
+      <div class="mode-title">閱讀測驗</div>
+      <div class="mode-desc">選擇題＋理解測試</div>
+    </div>
+    <div class="mode-card" onclick="goScreen('games')">
+      <div class="mode-icon">🎮</div>
+      <div class="mode-title">闖關遊戲</div>
+      <div class="mode-desc">配對、打字、排句挑戰</div>
+    </div>
+    <div class="mode-card" onclick="goScreen('speaking')">
+      <div class="mode-icon">🎙️</div>
+      <div class="mode-title">口說練習</div>
+      <div class="mode-desc">跟讀＋AI 對話情境</div>
+    </div>
+  </div>
+  <div class="section-title">每日任務</div>
+  <div class="daily-missions" id="missions-list"></div>
+</div>
+
+<!-- VOCABULARY -->
+<div class="screen" id="screen-vocab">
+  <div class="vocab-top">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button onclick="goScreen('home')" style="font-size:20px;color:var(--text2)">←</button>
+      <div style="font-size:18px;font-weight:900">單字練習</div>
+    </div>
+    <div class="vocab-tabs" id="vocab-tabs"></div>
+  </div>
+  <div class="vocab-progress">
+    <div class="vp-bar"><div class="vp-fill" id="vp-fill" style="width:0%"></div></div>
+    <span id="vocab-counter">0 / 0</span>
+  </div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="flashcard" onclick="flipCard()">
+      <div class="flashcard-inner" id="flashcard-inner">
+        <div class="fc-front" id="fc-front">
+          <div class="fc-kr" id="fc-kr">가다</div>
+          <div class="fc-rom" id="fc-rom">ga-da</div>
+          <div class="fc-hint">點擊翻面查看意思</div>
+        </div>
+        <div class="fc-back" id="fc-back">
+          <div class="fc-kr" id="fc-kr-back">가다</div>
+          <div class="fc-zh" id="fc-zh">去</div>
+          <div class="fc-example" id="fc-example"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fc-actions">
+    <button class="fc-btn hard" onclick="rateCard('hard')">😰 不熟</button>
+    <button class="fc-btn ok" onclick="rateCard('ok')">🙂 差不多</button>
+    <button class="fc-btn good" onclick="rateCard('good')">😄 很熟</button>
+  </div>
+
+  <!-- 不熟單字複習區 -->
+  <div class="review-section" id="review-section" style="display:none">
+    <div class="review-header">📌 待複習單字 <span id="review-count" style="background:var(--red);color:#fff;padding:2px 8px;border-radius:50px;font-size:11px">0</span></div>
+    <div id="review-list"></div>
+  </div>
+</div>
+
+<!-- READING -->
+<div class="screen" id="screen-reading">
+  <div class="reading-top">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <button onclick="goScreen('home')" style="font-size:20px;color:var(--text2)">←</button>
+      <div style="font-size:18px;font-weight:900">閱讀測驗</div>
+      <div style="margin-left:auto;font-size:12px;color:var(--accent);font-weight:700">題 <span id="r-num">1</span> / <span id="r-total">0</span></div>
+    </div>
+    <div class="reading-cats" id="reading-cats"></div>
+  </div>
+  <div id="reading-content" style="padding:0 20px"></div>
+</div>
+
+<!-- GAMES -->
+<div class="screen" id="screen-games">
+  <div class="games-top">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+      <button onclick="goScreen('home')" style="font-size:20px;color:var(--text2)">←</button>
+      <div style="font-size:18px;font-weight:900">闖關遊戲 🎮</div>
+    </div>
+    <div style="font-size:12px;color:var(--text2)">完成遊戲獲得 XP 和成就徽章</div>
+  </div>
+  <div class="game-list">
+    <div class="game-card" onclick="startGame('match')">
+      <div class="game-icon">🔗</div>
+      <div class="game-info">
+        <div class="game-name">配對連連看</div>
+        <div class="game-desc">韓文 ↔ 中文快速配對，60 秒計時</div>
+        <div class="game-score">最高：<span id="score-match">0</span> 分</div>
+      </div>
+      <div class="game-arrow">›</div>
+    </div>
+    <div class="game-card" onclick="startGame('typing')">
+      <div class="game-icon">⌨️</div>
+      <div class="game-info">
+        <div class="game-name">單字打字挑戰</div>
+        <div class="game-desc">看中文打韓文，打錯可再試，無時限</div>
+        <div class="game-score">最高：<span id="score-typing">0</span> 分</div>
+      </div>
+      <div class="game-arrow">›</div>
+    </div>
+    <div class="game-card" onclick="startGame('scramble')">
+      <div class="game-icon">🔀</div>
+      <div class="game-info">
+        <div class="game-name">排句遊戲</div>
+        <div class="game-desc">把打亂的韓文單詞排成正確句子</div>
+        <div class="game-score">最高：<span id="score-scramble">0</span> 分</div>
+      </div>
+      <div class="game-arrow">›</div>
+    </div>
+    <div class="game-card" onclick="startGame('fillblank')">
+      <div class="game-icon">✏️</div>
+      <div class="game-info">
+        <div class="game-name">克漏字填空</div>
+        <div class="game-desc">填入正確文法或單字，選擇題形式</div>
+        <div class="game-score">最高：<span id="score-fillblank">0</span> 分</div>
+      </div>
+      <div class="game-arrow">›</div>
+    </div>
+  </div>
+</div>
+
+<!-- SPEAKING -->
+<div class="screen" id="screen-speaking">
+  <div class="speaking-top">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <button onclick="goScreen('home')" style="font-size:20px;color:var(--text2)">←</button>
+      <div style="font-size:18px;font-weight:900">口說練習 🎙️</div>
+    </div>
+    <div class="speak-tabs">
+      <div class="speak-tab active" id="tab-shadow" onclick="switchSpeakTab('shadow')">跟讀練習</div>
+      <div class="speak-tab" id="tab-conv" onclick="switchSpeakTab('conv')">AI 對話</div>
+    </div>
+  </div>
+  <div id="shadow-section">
+    <div style="padding:0 20px;margin-bottom:10px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none">
+      <button onclick="loadShadow(0)" class="vtab active" id="sh-tab-0">日常會話</button>
+      <button onclick="loadShadow(1)" class="vtab" id="sh-tab-1">購物場景</button>
+      <button onclick="loadShadow(2)" class="vtab" id="sh-tab-2">韓檢考場</button>
+    </div>
+    <div class="shadowing-card">
+      <div class="shadow-kr" id="shadow-kr">안녕하세요</div>
+      <div class="shadow-rom" id="shadow-rom">an-nyeong-ha-se-yo</div>
+      <div class="shadow-zh" id="shadow-zh">你好</div>
+      <button class="speak-btn play" onclick="speakKorean()">🔊 播放韓文</button>
+      <button class="speak-btn record" id="record-btn" onclick="toggleRecord()">🎤 開始跟讀</button>
+    </div>
+    <div class="speak-result" id="speak-result"></div>
+    <div style="display:flex;gap:8px;padding:10px 20px">
+      <button onclick="prevShadow()" style="flex:1;padding:10px;background:var(--surface);border-radius:var(--radius-sm);font-size:13px;font-weight:700;color:var(--text2)">← 上一句</button>
+      <button onclick="nextShadow()" style="flex:1;padding:10px;background:var(--accent);color:#000;border-radius:var(--radius-sm);font-size:13px;font-weight:700">下一句 →</button>
+    </div>
+  </div>
+  <div id="conv-section" style="display:none">
+    <div style="padding:0 20px 10px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none">
+      <button onclick="startConv(0)" class="vtab active">餐廳點餐</button>
+      <button onclick="startConv(1)" class="vtab">問路情境</button>
+      <button onclick="startConv(2)" class="vtab">自我介紹</button>
+      <button onclick="startConv(3)" class="vtab">購物殺價</button>
+    </div>
+    <div class="conv-area">
+      <div class="conv-messages" id="conv-messages"></div>
+      <div class="conv-input-row">
+        <button class="conv-speak-btn" onclick="toggleConvRecord()" id="conv-rec-btn">🎤</button>
+        <textarea class="conv-input" id="conv-input" placeholder="用韓文或中文輸入..." rows="1"></textarea>
+        <button class="conv-send" onclick="sendConvMsg()">送出</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="screen" id="screen-profile">
+  <div class="profile-top">
+    <div class="avatar">🦁</div>
+    <div class="profile-name">韓語學習者</div>
+    <div class="profile-level">Level <span id="profile-level">1</span> · TOPIK II 備考中</div>
+  </div>
+  <div class="profile-xp-wrap">
+    <div class="profile-xp-label"><span>XP <span id="px-curr">0</span></span><span>升級需 <span id="px-need">100</span></span></div>
+    <div class="profile-xp-bar"><div class="profile-xp-fill" id="px-fill" style="width:0%"></div></div>
+  </div>
+  <div class="big-stats">
+    <div class="big-stat"><div class="big-stat-n" id="ps-streak">0</div><div class="big-stat-l">🔥 連續天數</div></div>
+    <div class="big-stat"><div class="big-stat-n" id="ps-words">0</div><div class="big-stat-l">📚 已學單字</div></div>
+    <div class="big-stat"><div class="big-stat-n" id="ps-correct">-%</div><div class="big-stat-l">✅ 正確率</div></div>
+    <div class="big-stat"><div class="big-stat-n" id="ps-days">0</div><div class="big-stat-l">📅 學習天數</div></div>
+  </div>
+  <div class="heatmap-wrap">
+    <div class="heatmap-title">過去 70 天學習紀錄</div>
+    <div class="heatmap" id="heatmap"></div>
+  </div>
+  <div class="badges-wrap">
+    <div class="badges-title">成就徽章</div>
+    <div class="badges-grid" id="badges-grid"></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" id="nav-home" onclick="goScreen('home')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>首頁
+  </button>
+  <button class="nav-btn" id="nav-vocab" onclick="goScreen('vocab')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>單字
+  </button>
+  <button class="nav-btn" id="nav-reading" onclick="goScreen('reading')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>閱讀
+  </button>
+  <button class="nav-btn" id="nav-games" onclick="goScreen('games')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 7.5V2H9v5.5l3 3 3-3zM7.5 9H2v6h5.5l3-3-3-3zm1 6.5V21h6v-5.5l-3-3-3 3zm8.5-6.5l-3 3 3 3H22V9h-5.5z"/></svg>遊戲
+  </button>
+  <button class="nav-btn" id="nav-speaking" onclick="goScreen('speaking')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>口說
+  </button>
+  <button class="nav-btn" id="nav-profile" onclick="goScreen('profile')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>我的
+  </button>
+</nav>
+
+<!-- GAME SCREENS -->
+<div class="game-screen" id="game-match">
+  <div class="game-header">
+    <button class="game-back" onclick="closeGame('match')">←</button>
+    <div class="game-title">配對連連看 🔗</div>
+    <div style="font-family:'Space Mono',monospace;font-size:16px;color:var(--accent);font-weight:700" id="match-timer">60</div>
+  </div>
+  <div style="display:flex;justify-content:space-between;padding:0 16px 10px;font-size:13px;color:var(--text2)">
+    <span>分數：<span id="match-score" style="color:var(--accent);font-weight:700">0</span></span>
+    <span>配對：<span id="match-pairs">0</span>/8</span>
+  </div>
+  <div class="match-grid" id="match-grid"></div>
+</div>
+
+<div class="game-screen" id="game-typing">
+  <div class="game-header">
+    <button class="game-back" onclick="closeGame('typing')">←</button>
+    <div class="game-title">打字挑戰 ⌨️</div>
+    <div style="font-size:13px;color:var(--text2)">題 <span id="typing-num">1</span>/20</div>
+  </div>
+  <div class="typing-area">
+    <div class="typing-prompt">
+      <div class="typing-zh" id="typing-zh">準備開始</div>
+      <div class="typing-hint-rom" id="typing-hint-rom"></div>
+    </div>
+    <div style="display:flex;justify-content:space-around;padding:4px 0">
+      <div class="typing-score-item"><div class="typing-score-n" id="typing-score">0</div><div class="typing-score-l">分數</div></div>
+      <div class="typing-score-item"><div class="typing-score-n" id="typing-correct">0</div><div class="typing-score-l">✅ 正確</div></div>
+      <div class="typing-score-item"><div class="typing-score-n" id="typing-wrong">0</div><div class="typing-score-l">❌ 錯誤</div></div>
+    </div>
+    <input class="typing-input" id="typing-input" placeholder="在此輸入韓文..." autocomplete="off" spellcheck="false">
+    <div class="typing-answer-reveal" id="typing-answer-reveal"></div>
+    <button class="typing-check-btn" onclick="checkTypingAnswer()">確認答案</button>
+    <button class="typing-next-btn" id="typing-next-btn" onclick="nextTypingWord()">下一題 →</button>
+  </div>
+</div>
+
+<div class="game-screen" id="game-scramble">
+  <div class="game-header">
+    <button class="game-back" onclick="closeGame('scramble')">←</button>
+    <div class="game-title">排句遊戲 🔀</div>
+    <div style="font-size:13px;color:var(--accent);font-weight:700">題 <span id="sc-num">1</span>/8</div>
+  </div>
+  <div class="scramble-area">
+    <div class="scramble-zh" id="sc-zh">載入中...</div>
+    <div style="font-size:12px;color:var(--text2)">排列順序：</div>
+    <div class="scramble-drop" id="sc-drop"></div>
+    <div style="font-size:12px;color:var(--text2)">可選詞彙：</div>
+    <div class="scramble-tokens-wrap" id="sc-tokens"></div>
+    <div class="scramble-result" id="sc-result"></div>
+    <button onclick="checkScramble()" style="padding:12px;background:var(--purple);color:#fff;border-radius:var(--radius);font-size:14px;font-weight:700">確認順序</button>
+    <button onclick="nextScramble()" id="sc-next" style="padding:11px;background:var(--surface);color:var(--text);border-radius:var(--radius);font-size:14px;font-weight:700;display:none">下一題 →</button>
+    <button onclick="resetScramble()" style="padding:10px;color:var(--text2);font-size:13px">↺ 重新排列</button>
+  </div>
+</div>
+
+<div class="game-screen" id="game-fillblank">
+  <div class="game-header">
+    <button class="game-back" onclick="closeGame('fillblank')">←</button>
+    <div class="game-title">克漏字填空 ✏️</div>
+    <div style="font-size:13px;color:var(--accent);font-weight:700">題 <span id="fb-num">1</span>/10</div>
+  </div>
+  <div style="padding:0 20px;flex:1;display:flex;flex-direction:column;gap:12px;overflow-y:auto">
+    <div style="background:var(--surface);border-radius:var(--radius);padding:16px">
+      <div style="font-size:11px;color:var(--text2);margin-bottom:8px">請選出正確的答案填入空格</div>
+      <div id="fb-question" style="font-size:17px;font-weight:700;line-height:1.8"></div>
+      <div id="fb-zh" style="font-size:13px;color:var(--text2);margin-top:6px"></div>
+    </div>
+    <div id="fb-options" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div id="fb-result" style="background:var(--surface);border-radius:var(--radius-sm);padding:12px;font-size:13px;line-height:1.7;display:none"></div>
+    <button onclick="nextFillblank()" id="fb-next" style="padding:11px;background:var(--surface);color:var(--text);border-radius:var(--radius);font-size:14px;font-weight:700;display:none">下一題 →</button>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="result-screen" id="result-screen">
+  <div class="result-emoji" id="result-emoji">🎉</div>
+  <div class="result-title" id="result-title">遊戲結束！</div>
+  <div class="result-score" id="result-score">0</div>
+  <div class="result-label" id="result-label">分數</div>
+  <div class="result-btns">
+    <button class="result-btn primary" onclick="playAgain()">再玩一次</button>
+    <button class="result-btn secondary" onclick="closeResult()">返回</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="xp-popup" id="xp-popup"><div class="xp-popup-inner" id="xp-popup-text">+10 XP</div></div>
+
+<script>
+// ═══════════════════════════
+// DATA
+// ═══════════════════════════
+const VOCAB = {
+  '名詞①':[
+    {kr:'가족',rom:'ga-jok',zh:'家族、家人',ex:'가족과 함께 여행했어요.\n和家人一起旅行了。'},
+    {kr:'건강',rom:'geon-gang',zh:'健康',ex:'건강이 제일 중요해요.\n健康最重要。'},
+    {kr:'경험',rom:'gyeong-heom',zh:'經驗、體驗',ex:'좋은 경험이 됐어요.\n成了很好的體驗。'},
+    {kr:'계획',rom:'gye-hoek',zh:'計畫',ex:'여름 계획을 세웠어요.\n制定了夏天的計畫。'},
+    {kr:'관계',rom:'gwan-gye',zh:'關係',ex:'좋은 관계를 유지해요.\n保持良好關係。'},
+    {kr:'교육',rom:'gyo-yuk',zh:'教育',ex:'교육이 중요합니다.\n教育很重要。'},
+    {kr:'기억',rom:'gi-eok',zh:'記憶、回憶',ex:'좋은 기억만 남아요.\n只留下好的回憶。'},
+    {kr:'기회',rom:'gi-hoe',zh:'機會',ex:'좋은 기회를 놓쳤어요.\n錯過了好機會。'},
+    {kr:'나라',rom:'na-ra',zh:'國家',ex:'어느 나라 사람이에요?\n你是哪個國家的人？'},
+    {kr:'날씨',rom:'nal-ssi',zh:'天氣',ex:'날씨가 좋아요.\n天氣很好。'},
+    {kr:'노력',rom:'no-ryeok',zh:'努力',ex:'노력하면 됩니다.\n努力就行了。'},
+    {kr:'능력',rom:'neung-ryeok',zh:'能力',ex:'능력을 키워야 해요.\n必須培養能力。'},
+    {kr:'문화',rom:'mun-hwa',zh:'文化',ex:'한국 문화를 배워요.\n學習韓國文化。'},
+    {kr:'미래',rom:'mi-rae',zh:'未來',ex:'미래를 위해 공부해요.\n為了未來而學習。'},
+    {kr:'방법',rom:'bang-beop',zh:'方法',ex:'좋은 방법이 있어요.\n有好方法。'},
+    {kr:'변화',rom:'byeon-hwa',zh:'變化',ex:'큰 변화가 생겼어요.\n發生了很大的變化。'},
+    {kr:'사회',rom:'sa-hoe',zh:'社會',ex:'사회에 기여해요.\n貢獻社會。'},
+    {kr:'생활',rom:'saeng-hwal',zh:'生活',ex:'일상 생활이 바빠요.\n日常生活很忙。'},
+    {kr:'성격',rom:'seong-gyeok',zh:'性格、個性',ex:'밝은 성격이에요.\n是開朗的性格。'},
+    {kr:'습관',rom:'seup-gwan',zh:'習慣',ex:'좋은 습관을 만들어요.\n養成好習慣。'},
+  ],
+  '名詞②':[
+    {kr:'시간',rom:'si-gan',zh:'時間',ex:'시간이 부족해요.\n時間不夠。'},
+    {kr:'이유',rom:'i-yu',zh:'理由、原因',ex:'이유를 설명해요.\n說明理由。'},
+    {kr:'자신',rom:'ja-sin',zh:'自己、自信',ex:'자신을 믿어요.\n相信自己。'},
+    {kr:'자연',rom:'ja-yeon',zh:'自然',ex:'자연을 보호해야 해요.\n必須保護自然。'},
+    {kr:'장점',rom:'jang-jeom',zh:'優點、長處',ex:'장점을 잘 살려요.\n善用優點。'},
+    {kr:'정보',rom:'jeong-bo',zh:'資訊、信息',ex:'정보를 검색해요.\n搜尋資訊。'},
+    {kr:'지식',rom:'ji-sik',zh:'知識',ex:'지식을 쌓아요.\n積累知識。'},
+    {kr:'차이',rom:'cha-i',zh:'差異、差別',ex:'차이가 있어요.\n有差異。'},
+    {kr:'태도',rom:'tae-do',zh:'態度',ex:'태도가 중요해요.\n態度很重要。'},
+    {kr:'특징',rom:'teuk-jing',zh:'特徵、特點',ex:'특징을 설명해요.\n說明特點。'},
+    {kr:'표현',rom:'pyo-hyeon',zh:'表現、表達',ex:'감정을 표현해요.\n表達感情。'},
+    {kr:'환경',rom:'hwan-gyeong',zh:'環境',ex:'환경을 보호해요.\n保護環境。'},
+    {kr:'활동',rom:'hwal-dong',zh:'活動',ex:'다양한 활동을 해요.\n進行各種活動。'},
+    {kr:'효과',rom:'hyo-gwa',zh:'效果、效益',ex:'효과가 좋아요.\n效果很好。'},
+    {kr:'목표',rom:'mok-pyo',zh:'目標',ex:'목표를 세워요.\n設定目標。'},
+    {kr:'문제',rom:'mun-je',zh:'問題',ex:'문제를 해결해요.\n解決問題。'},
+    {kr:'결과',rom:'gyeol-gwa',zh:'結果',ex:'좋은 결과가 나왔어요.\n得出了好結果。'},
+    {kr:'역할',rom:'yeok-hal',zh:'角色、職責',ex:'중요한 역할이에요.\n是重要的角色。'},
+    {kr:'영향',rom:'yeong-hyang',zh:'影響',ex:'큰 영향을 받았어요.\n受到了很大影響。'},
+    {kr:'인간',rom:'in-gan',zh:'人類、人',ex:'인간은 사회적 존재예요.\n人類是社會性存在。'},
+  ],
+  '動詞①':[
+    {kr:'가르치다',rom:'ga-reu-chi-da',zh:'教、教導',ex:'학생들을 가르쳐요.\n教學生們。'},
+    {kr:'결정하다',rom:'gyeol-jeong-ha-da',zh:'決定',ex:'스스로 결정해요.\n自己決定。'},
+    {kr:'고려하다',rom:'go-ryeo-ha-da',zh:'考慮、考量',ex:'모든 것을 고려해요.\n考慮所有事情。'},
+    {kr:'극복하다',rom:'geuk-bok-ha-da',zh:'克服、戰勝',ex:'어려움을 극복해요.\n克服困難。'},
+    {kr:'기대하다',rom:'gi-dae-ha-da',zh:'期待、期望',ex:'좋은 결과를 기대해요.\n期待好結果。'},
+    {kr:'노력하다',rom:'no-ryeok-ha-da',zh:'努力',ex:'열심히 노력해요.\n努力用功。'},
+    {kr:'느끼다',rom:'neu-kki-da',zh:'感覺、感受',ex:'행복을 느껴요.\n感受到幸福。'},
+    {kr:'달성하다',rom:'dal-seong-ha-da',zh:'達成、實現',ex:'목표를 달성해요.\n達成目標。'},
+    {kr:'대화하다',rom:'dae-hwa-ha-da',zh:'對話、交談',ex:'솔직하게 대화해요.\n坦誠地交談。'},
+    {kr:'도전하다',rom:'do-jeon-ha-da',zh:'挑戰',ex:'새로운 것에 도전해요.\n挑戰新事物。'},
+    {kr:'발전하다',rom:'bal-jeon-ha-da',zh:'發展、進步',ex:'빠르게 발전해요.\n快速發展。'},
+    {kr:'비교하다',rom:'bi-gyo-ha-da',zh:'比較',ex:'두 가지를 비교해요.\n比較兩種事物。'},
+    {kr:'선택하다',rom:'seon-taek-ha-da',zh:'選擇',ex:'신중하게 선택해요.\n謹慎選擇。'},
+    {kr:'설명하다',rom:'seol-myeong-ha-da',zh:'說明、解釋',ex:'자세히 설명해요.\n詳細說明。'},
+    {kr:'소개하다',rom:'so-gae-ha-da',zh:'介紹',ex:'친구를 소개해요.\n介紹朋友。'},
+    {kr:'연습하다',rom:'yeon-seup-ha-da',zh:'練習',ex:'매일 연습해요.\n每天練習。'},
+    {kr:'이해하다',rom:'i-hae-ha-da',zh:'理解',ex:'잘 이해했어요.\n理解了。'},
+    {kr:'인정하다',rom:'in-jeong-ha-da',zh:'承認、認可',ex:'실수를 인정해요.\n承認錯誤。'},
+    {kr:'참여하다',rom:'cham-yeo-ha-da',zh:'參與',ex:'행사에 참여해요.\n參與活動。'},
+    {kr:'해결하다',rom:'hae-gyeol-ha-da',zh:'解決',ex:'문제를 해결해요.\n解決問題。'},
+  ],
+  '動詞②':[
+    {kr:'향상시키다',rom:'hyang-sang-si-ki-da',zh:'提升、提高',ex:'실력을 향상시켜요.\n提升實力。'},
+    {kr:'활용하다',rom:'hwal-lyong-ha-da',zh:'活用、利用',ex:'자원을 활용해요.\n利用資源。'},
+    {kr:'확인하다',rom:'hwa-gin-ha-da',zh:'確認',ex:'정보를 확인해요.\n確認資訊。'},
+    {kr:'표현하다',rom:'pyo-hyeon-ha-da',zh:'表現、表達',ex:'감정을 표현해요.\n表達感情。'},
+    {kr:'판단하다',rom:'pan-dan-ha-da',zh:'判斷',ex:'스스로 판단해요.\n自己判斷。'},
+    {kr:'강조하다',rom:'gang-jo-ha-da',zh:'強調',ex:'중요성을 강조해요.\n強調重要性。'},
+    {kr:'분석하다',rom:'bun-seok-ha-da',zh:'分析',ex:'데이터를 분석해요.\n分析數據。'},
+    {kr:'조사하다',rom:'jo-sa-ha-da',zh:'調查',ex:'원인을 조사해요.\n調查原因。'},
+    {kr:'추구하다',rom:'chu-gu-ha-da',zh:'追求',ex:'행복을 추구해요.\n追求幸福。'},
+    {kr:'평가하다',rom:'pyeong-ga-ha-da',zh:'評價、評估',ex:'결과를 평가해요.\n評估結果。'},
+    {kr:'협력하다',rom:'hyeom-nyeok-ha-da',zh:'協力、合作',ex:'함께 협력해요.\n一起合作。'},
+    {kr:'주장하다',rom:'ju-jang-ha-da',zh:'主張、堅持',ex:'의견을 주장해요.\n主張意見。'},
+    {kr:'제공하다',rom:'je-gong-ha-da',zh:'提供',ex:'정보를 제공해요.\n提供資訊。'},
+    {kr:'실천하다',rom:'sil-cheon-ha-da',zh:'實踐、執行',ex:'계획을 실천해요.\n實踐計畫。'},
+    {kr:'수집하다',rom:'su-jip-ha-da',zh:'收集、蒐集',ex:'정보를 수집해요.\n收集資訊。'},
+    {kr:'완성하다',rom:'wan-seong-ha-da',zh:'完成',ex:'과제를 완성해요.\n完成作業。'},
+    {kr:'탐구하다',rom:'tam-gu-ha-da',zh:'探究、探索',ex:'진리를 탐구해요.\n探究真理。'},
+    {kr:'다루다',rom:'da-ru-da',zh:'處理、對待',ex:'신중하게 다뤄요.\n謹慎處理。'},
+    {kr:'포함하다',rom:'po-ham-ha-da',zh:'包含、包括',ex:'모두 포함해요.\n全部包含。'},
+    {kr:'유지하다',rom:'yu-ji-ha-da',zh:'維持、保持',ex:'건강을 유지해요.\n維持健康。'},
+  ],
+  '形容詞':[
+    {kr:'구체적이다',rom:'gu-che-jeok-i-da',zh:'具體的',ex:'구체적인 계획이 필요해요.\n需要具體的計畫。'},
+    {kr:'긍정적이다',rom:'geung-jeong-jeok-i-da',zh:'積極的、正面的',ex:'긍정적으로 생각해요.\n積極地思考。'},
+    {kr:'다양하다',rom:'da-yang-ha-da',zh:'多樣的、各種各樣的',ex:'다양한 경험을 해요.\n有各種各樣的體驗。'},
+    {kr:'부정적이다',rom:'bu-jeong-jeok-i-da',zh:'消極的、負面的',ex:'부정적인 생각을 버려요.\n放棄消極的想法。'},
+    {kr:'성실하다',rom:'seong-sil-ha-da',zh:'誠實的、認真的',ex:'성실한 학생이에요.\n是認真的學生。'},
+    {kr:'심각하다',rom:'sim-gak-ha-da',zh:'嚴重的、嚴肅的',ex:'심각한 문제예요.\n是嚴重的問題。'},
+    {kr:'적극적이다',rom:'jeok-geuk-jeok-i-da',zh:'積極的、主動的',ex:'적극적으로 참여해요.\n積極地參與。'},
+    {kr:'효율적이다',rom:'hyo-yul-jeok-i-da',zh:'有效率的',ex:'효율적으로 일해요.\n有效率地工作。'},
+    {kr:'복잡하다',rom:'bok-jap-ha-da',zh:'複雜的',ex:'상황이 복잡해요.\n情況很複雜。'},
+    {kr:'독특하다',rom:'dok-teuk-ha-da',zh:'獨特的、特別的',ex:'독특한 개성이 있어요.\n有獨特的個性。'},
+  ],
+  '副詞&表達':[
+    {kr:'결국',rom:'gyeol-guk',zh:'最終、結果',ex:'결국 성공했어요.\n最終成功了。'},
+    {kr:'게다가',rom:'ge-da-ga',zh:'況且、而且',ex:'게다가 저렴해요.\n況且很便宜。'},
+    {kr:'그러나',rom:'geu-reo-na',zh:'但是、然而',ex:'열심히 했어요. 그러나 실패했어요.\n努力了。但是失敗了。'},
+    {kr:'따라서',rom:'tta-ra-seo',zh:'因此、所以',ex:'따라서 조심해야 해요.\n因此必須小心。'},
+    {kr:'반면에',rom:'ban-myeon-e',zh:'另一方面、反之',ex:'반면에 단점도 있어요.\n另一方面也有缺點。'},
+    {kr:'오히려',rom:'o-hi-ryeo',zh:'反而、倒是',ex:'오히려 좋아요.\n反而更好。'},
+    {kr:'점점',rom:'jeom-jeom',zh:'漸漸、逐漸',ex:'점점 좋아지고 있어요.\n漸漸在好轉。'},
+    {kr:'특히',rom:'teu-ki',zh:'特別、尤其',ex:'특히 중요해요.\n特別重要。'},
+    {kr:'전혀',rom:'jeon-hyeo',zh:'完全（不）、根本（不）',ex:'전혀 몰랐어요.\n完全不知道。'},
+    {kr:'거의',rom:'geo-ui',zh:'幾乎、差不多',ex:'거의 다 됐어요.\n幾乎完成了。'},
+  ],
+};
+
+const READING_DATA = [
+  {
+    cat:'日常生活',
+    passage:`저는 매일 아침 6시에 일어나요. 일어나면 먼저 운동을 해요. 운동을 한 후에 샤워를 하고 아침을 먹어요. 아침에는 보통 빵과 커피를 먹어요. 그리고 8시쯤 집을 나가요. 저는 지하철을 타고 회사에 가요. 회사는 집에서 30분 정도 걸려요.`,
+    passage_zh:'我每天早上6點起床。起床後先運動。運動後洗澡、吃早餐。早上通常吃麵包和咖啡。然後8點左右出門。我坐地鐵去公司。公司距家大約要30分鐘。',
+    questions:[
+      {q:'이 사람은 아침에 먼저 무엇을 해요?',opts:['샤워를 해요','밥을 먹어요','운동을 해요','커피를 마셔요'],answer:2,explain:'文章第二句：일어나면 먼저 운동을 해요（起床後先運動）'},
+      {q:'이 사람은 회사에 어떻게 가요?',opts:['버스를 타요','걸어가요','지하철을 타요','택시를 타요'],answer:2,explain:'文章：저는 지하철을 타고 회사에 가요（我坐地鐵去公司）'},
+      {q:'집에서 회사까지 얼마나 걸려요?',opts:['10분','20분','40분','30분'],answer:3,explain:'文章：회사는 집에서 30분 정도 걸려요（公司距家約30分鐘）'},
+    ]
+  },
+  {
+    cat:'環境問題',
+    passage:`최근 환경 문제가 심각해지고 있어요. 특히 기후 변화로 인해 여러 가지 문제가 생기고 있어요. 여름은 점점 더워지고, 겨울은 점점 따뜻해지고 있어요. 또한 미세먼지 문제도 심각해요. 전문가들은 이런 문제를 해결하기 위해 우리 모두가 노력해야 한다고 말해요.`,
+    passage_zh:'最近環境問題越來越嚴重。特別是由於氣候變化，出現了各種問題。夏天越來越熱，冬天越來越暖。此外，細懸浮微粒問題也很嚴重。專家們說，為了解決這些問題，我們所有人都必須努力。',
+    questions:[
+      {q:'이 글의 주제는 무엇이에요?',opts:['날씨 예보','환경 문제','여름 여행','건강 관리'],answer:1,explain:'文章主題圍繞環境問題（환경 문제）'},
+      {q:'기후 변화로 인해 여름은 어떻게 변하고 있어요?',opts:['점점 시원해지고 있어요','점점 더워지고 있어요','점점 짧아지고 있어요','변화가 없어요'],answer:1,explain:'文章：여름은 점점 더워지고（夏天越來越熱）'},
+      {q:'전문가들은 어떻게 해야 한다고 말해요?',opts:['정부가 혼자 해결해야 해요','외국에서 도움을 받아야 해요','모두가 노력해야 해요','과학자들만 노력하면 돼요'],answer:2,explain:'文章：우리 모두가 노력해야 한다고 말해요（說我們所有人都必須努力）'},
+    ]
+  },
+  {
+    cat:'韓國文化',
+    passage:`한국에는 특별한 음식 문화가 있어요. 한국 사람들은 밥을 먹을 때 여러 가지 반찬을 같이 먹어요. 반찬에는 김치, 나물, 생선 등이 있어요. 또한 한국 사람들은 국이나 찌개를 꼭 먹어요. 한국 음식은 매운 것이 많아서 외국 사람들이 힘들어할 수도 있어요. 하지만 건강에 좋은 음식도 많이 있어요.`,
+    passage_zh:'韓國有特別的飲食文化。韓國人吃飯時會一起吃各種小菜。小菜有泡菜、涼拌菜、魚等。另外，韓國人一定要吃湯或鍋。韓國食物辣的很多，外國人可能會覺得難以接受。但是也有很多對健康好的食物。',
+    questions:[
+      {q:'한국 사람들이 밥을 먹을 때 같이 먹는 것은?',opts:['반찬','과자','빵','과일'],answer:0,explain:'文章：밥을 먹을 때 여러 가지 반찬을 같이 먹어요（吃飯時一起吃各種小菜）'},
+      {q:'한국 음식의 특징은 무엇이에요?',opts:['단 것이 많아요','싱거운 것이 많아요','매운 것이 많아요','짠 것이 많아요'],answer:2,explain:'文章：한국 음식은 매운 것이 많아서（韓國食物辣的很多）'},
+      {q:'이 글의 내용과 다른 것은?',opts:['한국 사람들은 국을 먹어요','반찬에 김치가 있어요','한국 음식은 건강에 안 좋아요','한국에는 음식 문화가 있어요'],answer:2,explain:'文章說韓國也有很多對健康好的食物，所以「韓國食物對健康不好」是錯的'},
+    ]
+  },
+  {
+    cat:'學習與工作',
+    passage:`요즘 많은 사람들이 외국어를 배우고 있어요. 외국어를 배우면 좋은 점이 많아요. 첫째, 다른 나라 사람들과 소통할 수 있어요. 둘째, 더 좋은 직업을 가질 수 있어요. 셋째, 다른 문화를 이해할 수 있어요. 외국어를 잘 배우려면 매일 꾸준히 공부하는 것이 중요해요.`,
+    passage_zh:'最近很多人在學外語。學外語有很多好處。第一，可以和其他國家的人溝通。第二，可以有更好的工作。第三，可以理解其他文化。要學好外語，每天持續學習很重要。',
+    questions:[
+      {q:'외국어를 배우면 좋은 점이 아닌 것은?',opts:['다른 나라 사람과 소통할 수 있어요','더 좋은 직업을 가질 수 있어요','돈을 많이 벌 수 있어요','다른 문화를 이해할 수 있어요'],answer:2,explain:'文章列出三個好處，沒有提到「可以賺很多錢」'},
+      {q:'외국어를 잘 배우려면 어떻게 해야 해요?',opts:['가끔씩 공부해요','매일 꾸준히 공부해요','학원에만 다녀요','원어민 친구가 있어야 해요'],answer:1,explain:'文章：매일 꾸준히 공부하는 것이 중요해요（每天持續學習很重要）'},
+      {q:'이 글에서 말하는 외국어 학습의 장점은 몇 가지예요?',opts:['1가지','2가지','3가지','4가지'],answer:2,explain:'文章列出첫째、둘째、셋째，共三個好處'},
+    ]
+  },
+];
+
+const SCRAMBLE_DATA = [
+  {zh:'我每天學習韓語。',tokens:['매일','저는','한국어를','공부해요'],answer:'저는 매일 한국어를 공부해요'},
+  {zh:'因為下雨，所以沒有出門。',tokens:['비가','외출하지','와서','않았어요'],answer:'비가 와서 외출하지 않았어요'},
+  {zh:'越學習越有趣。',tokens:['공부할수록','재미있어요','더'],answer:'공부할수록 더 재미있어요'},
+  {zh:'必須保護環境。',tokens:['환경을','해요','보호해야'],answer:'환경을 보호해야 해요'},
+  {zh:'我一邊聽音樂一邊學習。',tokens:['들으면서','음악을','공부해요'],answer:'음악을 들으면서 공부해요'},
+  {zh:'這個問題非常嚴重。',tokens:['이','심각해요','문제는','매우'],answer:'이 문제는 매우 심각해요'},
+  {zh:'不僅好吃，對健康也好。',tokens:['맛있을','건강에도','뿐만','아니라','좋아요'],answer:'맛있을 뿐만 아니라 건강에도 좋아요'},
+  {zh:'請按時完成作業。',tokens:['제시간에','완성하도록','숙제를','하세요'],answer:'숙제를 제시간에 완성하도록 하세요'},
+];
+
+const FILLBLANK_BANK = [
+  {q:'저는 음악을 ___ 공부해요.',blank:'들으면서',zh:'我一邊聽音樂一邊學習。',opts:['들으면서','들어서','들으니까','들은데'],explanation:'-(으)면서 表示同時進行兩個動作'},
+  {q:'비가 ___ 집에 있었어요.',blank:'와서',zh:'因為下雨，所以待在家。',opts:['와서','오면서','오니까','올수록'],explanation:'와서 = 오다＋아서，表示因果'},
+  {q:'공부할___ 어려워요.',blank:'수록',zh:'越學越難。',opts:['수록','때마다','정도','만큼'],explanation:'-(으)ㄹ수록 越...越...'},
+  {q:'한국어를 잘하려면 매일 연습___ 해요.',blank:'해야',zh:'要說好韓語必須每天練習。',opts:['해야','하려고','하면서','하도록'],explanation:'-아/어야 하다 = 必須'},
+  {q:'내일 비가 ___ 것 같아요.',blank:'올',zh:'好像明天會下雨。',opts:['올','오는','온','오던'],explanation:'-(으)ㄹ 것 같다 = 推測'},
+  {q:'환경 문제___ 대해 이야기해요.',blank:'에',zh:'談論關於環境問題的話題。',opts:['에','을','이','의'],explanation:'에 대해 = 關於'},
+  {q:'장점이 있는 ___ 단점도 있어요.',blank:'반면에',zh:'有優點的同時也有缺點。',opts:['반면에','경우에','때문에','덕분에'],explanation:'반면에 = 另一方面，表示對比'},
+  {q:'맛있을 뿐만 ___ 건강에도 좋아요.',blank:'아니라',zh:'不僅好吃，對健康也好。',opts:['아니라','몰라도','해도','봐도'],explanation:'뿐만 아니라 = 不僅...而且...'},
+  {q:'태풍___ 인해 많은 피해가 생겼어요.',blank:'으로',zh:'由於颱風造成了很多損失。',opts:['으로','에서','에게','와'],explanation:'(으)로 인해 = 由於（書面語）'},
+  {q:'아이들이 공부하___ 했어요.',blank:'도록',zh:'讓孩子們學習了。',opts:['도록','면서','더라도','지만'],explanation:'-도록 하다 = 讓...做'},
+];
+
+const SHADOW_DATA = [
+  [
+    {kr:'오랜만이에요! 잘 지내셨어요?',rom:'o-raen-man-i-e-yo! jal ji-nae-ssyeo-sseo-yo?',zh:'好久不見！您過得好嗎？'},
+    {kr:'요즘 많이 바쁘셨군요. 건강은 어떠세요?',rom:'yo-jeum man-hi ba-ppeu-syeot-gun-yo.',zh:'最近很忙吧。身體怎麼樣？'},
+    {kr:'사실은 말씀드릴 게 있어서요.',rom:'sa-si-reun mal-sseum-deu-ril ge i-sseo-seo-yo.',zh:'其實有件事想告訴您。'},
+    {kr:'제가 한국어를 공부한 지 1년이 됐어요.',rom:'je-ga han-gu-geo-reul gong-bu-han ji 1-nyeo-ni dwaet-sseo-yo.',zh:'我學韓語已經一年了。'},
+    {kr:'앞으로도 잘 부탁드립니다.',rom:'a-peu-ro-do jal bu-tak-deu-rim-ni-da.',zh:'今後也請多關照。'},
+  ],
+  [
+    {kr:'이것 좀 보여 주세요.',rom:'i-geot jom bo-yeo ju-se-yo.',zh:'請讓我看一下這個。'},
+    {kr:'다른 색깔은 없나요?',rom:'da-reun saek-kka-reun eom-na-yo?',zh:'有其他顏色嗎？'},
+    {kr:'좀 더 큰 사이즈로 교환할 수 있나요?',rom:'jom deo keun sa-i-jeu-ro gyo-hwan-hal su it-na-yo?',zh:'可以換大一點的尺寸嗎？'},
+    {kr:'카드로 결제해도 되나요?',rom:'ka-deu-ro gyeol-je-hae-do doe-na-yo?',zh:'可以用信用卡結帳嗎？'},
+    {kr:'영수증 주시면 감사하겠습니다.',rom:'yeong-su-jeung ju-si-myeon gam-sa-ha-get-sseum-ni-da.',zh:'如果給我收據的話，非常感謝。'},
+  ],
+  [
+    {kr:'다음을 듣고 물음에 답하십시오.',rom:'da-eu-meul deut-go mu-eu-me dap-ha-sip-si-o.',zh:'請聽以下內容回答問題。'},
+    {kr:'이 글은 무엇에 대한 글인지 고르십시오.',rom:'i geu-reun mu-eo-se dae-han geu-rin-ji go-reu-sip-si-o.',zh:'請選出這篇文章是關於什麼的。'},
+    {kr:'빈칸에 들어갈 가장 알맞은 것을 고르십시오.',rom:'bin-ka-ne deu-reo-gal ga-jang al-mat-neun geo-seul go-reu-sip-si-o.',zh:'請選出最適合填入空格的選項。'},
+    {kr:'윗글의 내용과 같은 것을 고르십시오.',rom:'wit-geu-ri nae-yong-gwa ga-teun geo-seul go-reu-sip-si-o.',zh:'請選出與上文內容相同的選項。'},
+    {kr:'글의 주제로 가장 알맞은 것을 고르십시오.',rom:'geu-ri ju-je-ro ga-jang al-mat-neun geo-seul go-reu-sip-si-o.',zh:'請選出最符合文章主題的選項。'},
+  ],
+];
+
+const CONV_CONTEXTS = [
+  {prompt:'你是韓國餐廳服務生，我是台灣顧客。用韓語和我對話練習點餐。每次回覆格式：【韓語】\n【翻譯：中文】。如果我韓語有錯請溫和糾正。先用韓語歡迎我。'},
+  {prompt:'你是韓國路人，我是迷路的觀光客。用韓語對話練習問路。每次回覆格式：【韓語】\n【翻譯：中文】。先問我要去哪裡。'},
+  {prompt:'你是在語言交換認識的韓國朋友，和我練習韓語自我介紹。每次回覆格式：【韓語】\n【翻譯：中文】。先打招呼問我名字。'},
+  {prompt:'你是韓國傳統市場攤販，我是顧客。用韓語對話練習購物砍價。每次回覆格式：【韓語】\n【翻譯：中文】。先介紹你的商品。'},
+];
+
+const BADGES = [
+  {emoji:'🌱',label:'初心者',cond:'words_10'},
+  {emoji:'📚',label:'50單字',cond:'words_50'},
+  {emoji:'💯',label:'100單字',cond:'words_100'},
+  {emoji:'🔥',label:'連續3天',cond:'streak_3'},
+  {emoji:'⚡',label:'連續7天',cond:'streak_7'},
+  {emoji:'🏆',label:'連續30天',cond:'streak_30'},
+  {emoji:'🎮',label:'遊戲王',cond:'game_10'},
+  {emoji:'🎯',label:'正確率90%',cond:'acc_90'},
+  {emoji:'🌙',label:'夜貓子',cond:'night_study'},
+  {emoji:'🌟',label:'TOPIK戰士',cond:'words_200'},
+];
+
+// ═══════════════════════════
+// STATE
+// ═══════════════════════════
+let state = {
+  xp:0,level:1,streak:0,lastDate:'',totalDays:0,
+  wordsStudied:{},wordFamiliarity:{},hardWords:{},
+  totalAnswered:0,totalCorrect:0,
+  gamesPlayed:0,highScores:{match:0,typing:0,scramble:0,fillblank:0},
+  heatmap:{},unlockedBadges:[],nightStudy:false,
+  missions:{vocab:0,reading:0,game:0,speak:0},missionDate:''
+};
+
+function loadState(){
+  const s=localStorage.getItem('topik2_v2');
+  if(s) state={...state,...JSON.parse(s)};
+  checkStreak(); checkMissions();
+}
+function saveState(){ localStorage.setItem('topik2_v2',JSON.stringify(state)); }
+
+function checkStreak(){
+  const today=new Date().toDateString();
+  if(state.lastDate===today) return;
+  const yesterday=new Date(Date.now()-86400000).toDateString();
+  if(state.lastDate===yesterday) state.streak++;
+  else state.streak=1;
+  state.lastDate=today;
+  state.totalDays++;
+  state.heatmap[today]=(state.heatmap[today]||0)+1;
+  const h=new Date().getHours();
+  if(h>=22||h<6) state.nightStudy=true;
+  saveState();
+}
+function checkMissions(){
+  const today=new Date().toDateString();
+  if(state.missionDate!==today){
+    state.missions={vocab:0,reading:0,game:0,speak:0};
+    state.missionDate=today; saveState();
+  }
+}
+
+function addXP(amount){
+  state.xp+=amount;
+  const needed=getXPNeeded();
+  while(state.xp>=needed){ state.xp-=needed; state.level++; showToast('🎉 升級！現在 Level '+state.level); }
+  saveState(); updateXPUI(); showXPPopup(amount); checkBadges();
+}
+function getXPNeeded(){ return 100+(state.level-1)*50; }
+
+function checkBadges(){
+  const wc=Object.keys(state.wordsStudied).length;
+  const checks={
+    words_10:wc>=10,words_50:wc>=50,words_100:wc>=100,words_200:wc>=200,
+    streak_3:state.streak>=3,streak_7:state.streak>=7,streak_30:state.streak>=30,
+    game_10:state.gamesPlayed>=10,
+    acc_90:state.totalAnswered>10&&(state.totalCorrect/state.totalAnswered)>=0.9,
+    night_study:state.nightStudy,
+  };
+  BADGES.forEach(b=>{
+    if(checks[b.cond]&&!state.unlockedBadges.includes(b.cond)){
+      state.unlockedBadges.push(b.cond);
+      showToast('🏅 解鎖徽章：'+b.emoji+' '+b.label);
+      saveState();
+    }
+  });
+}
+
+// ═══════════════════════════
+// UI
+// ═══════════════════════════
+function goScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const nb=document.getElementById('nav-'+id);
+  if(nb) nb.classList.add('active');
+  if(id==='home') refreshHome();
+  if(id==='vocab') initVocab();
+  if(id==='reading') initReading();
+  if(id==='profile') initProfile();
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function showXPPopup(xp){
+  const p=document.getElementById('xp-popup');
+  document.getElementById('xp-popup-text').textContent='+'+xp+' XP';
+  p.classList.add('show');
+  clearTimeout(p._t); p._t=setTimeout(()=>p.classList.remove('show'),1500);
+}
+
+function updateXPUI(){
+  const needed=getXPNeeded();
+  const pct=Math.min(100,(state.xp/needed)*100);
+  document.getElementById('xp-bar').style.width=pct+'%';
+  document.getElementById('level-num').textContent=state.level;
+  const pxf=document.getElementById('px-fill');
+  if(pxf){ pxf.style.width=pct+'%'; document.getElementById('px-curr').textContent=state.xp; document.getElementById('px-need').textContent=needed; document.getElementById('profile-level').textContent=state.level; }
+}
+
+// ═══════════════════════════
+// HOME
+// ═══════════════════════════
+function refreshHome(){
+  document.getElementById('streak-count').textContent=state.streak;
+  updateXPUI();
+  const wc=Object.keys(state.wordsStudied).length;
+  document.getElementById('stat-words').textContent=wc;
+  document.getElementById('stat-accuracy').textContent=state.totalAnswered?Math.round(state.totalCorrect/state.totalAnswered*100)+'%':'-';
+  document.getElementById('stat-xp').textContent=state.xp+state.level*100;
+  const h=new Date().getHours();
+  document.getElementById('greeting-text').textContent=h<12?'早安，加油！':h<18?'繼續努力！':h<21?'晚上加油！':'夜貓子也要練！';
+  renderMissions();
+}
+
+function renderMissions(){
+  const data=[
+    {key:'vocab',name:'單字練習',goal:10,unit:'張',icon:'📚'},
+    {key:'reading',name:'閱讀測驗',goal:3,unit:'題',icon:'📖'},
+    {key:'game',name:'遊戲闖關',goal:1,unit:'局',icon:'🎮'},
+    {key:'speak',name:'口說跟讀',goal:5,unit:'句',icon:'🎙️'},
+  ];
+  document.getElementById('missions-list').innerHTML=data.map(d=>{
+    const curr=state.missions[d.key]||0;
+    const pct=Math.min(100,curr/d.goal*100);
+    const done=curr>=d.goal;
+    return `<div class="mission">
+      <div style="font-size:24px">${d.icon}</div>
+      <div class="mission-info">
+        <div class="mission-name">${done?'✅ ':''} ${d.name}</div>
+        <div class="mission-prog">${curr}/${d.goal} ${d.unit}</div>
+        <div class="mission-bar"><div class="mission-fill" style="width:${pct}%"></div></div>
+      </div>
+      <div class="mission-xp">${done?'完成':'+'+(d.goal*15)+' XP'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════
+// VOCABULARY
+// ═══════════════════════════
+let vocabCat,vocabDeck,vocabIdx=0,cardFlipped=false;
+
+function initVocab(){
+  const cats=Object.keys(VOCAB);
+  if(!vocabCat) vocabCat=cats[0];
+  document.getElementById('vocab-tabs').innerHTML=cats.map(c=>
+    `<button class="vtab ${c===vocabCat?'active':''}" onclick="switchVocabCat('${c}')">${c}</button>`
+  ).join('');
+  loadVocabDeck();
+  renderReviewList();
+}
+
+function switchVocabCat(cat){ vocabCat=cat; initVocab(); }
+
+function loadVocabDeck(){
+  const all=VOCAB[vocabCat];
+  // hard words first, then unfamiliar, then others
+  vocabDeck=[...all].sort((a,b)=>{
+    const ha=state.hardWords[a.kr]?1:0, hb=state.hardWords[b.kr]?1:0;
+    if(ha!==hb) return hb-ha;
+    return (state.wordFamiliarity[a.kr]||0)-(state.wordFamiliarity[b.kr]||0);
+  });
+  vocabIdx=0; showVocabCard();
+}
+
+function showVocabCard(){
+  const card=vocabDeck[vocabIdx];
+  if(!card) return;
+  cardFlipped=false;
+  document.getElementById('flashcard').classList.remove('flipped');
+  document.getElementById('fc-kr').textContent=card.kr;
+  document.getElementById('fc-rom').textContent=card.rom;
+  document.getElementById('fc-kr-back').textContent=card.kr;
+  document.getElementById('fc-zh').textContent=card.zh;
+  const ex=card.ex.split('\n');
+  document.getElementById('fc-example').innerHTML=ex[0]+'<br><span style="color:var(--text3);font-size:12px">'+ex[1]+'</span>';
+  const fam=state.wordFamiliarity[card.kr]||0;
+  const isHard=state.hardWords[card.kr];
+  document.getElementById('fc-hint').textContent=(isHard?'📌 待複習 · ':'')+(fam===0?'新單字':fam===1?'初次見面':fam===2?'漸漸熟悉':'已掌握')+' · 點擊翻面';
+  updateVocabProgress();
+}
+
+function flipCard(){
+  cardFlipped=!cardFlipped;
+  document.getElementById('flashcard').classList.toggle('flipped');
+}
+
+function rateCard(rating){
+  const card=vocabDeck[vocabIdx];
+  if(!card) return;
+  if(rating==='hard'){
+    // 不熟：不給XP，加入待複習
+    state.hardWords[card.kr]=true;
+    state.wordFamiliarity[card.kr]=0;
+    showToast('📌 已加入待複習清單');
+  } else if(rating==='ok'){
+    delete state.hardWords[card.kr];
+    state.wordFamiliarity[card.kr]=Math.min(3,(state.wordFamiliarity[card.kr]||0)+1);
+    state.wordsStudied[card.kr]=true;
+    state.totalAnswered++; state.missions.vocab=(state.missions.vocab||0)+1;
+    addXP(5);
+    if(state.missions.vocab===10){ addXP(150); showToast('✅ 每日單字任務完成！+150 XP'); }
+  } else {
+    // good
+    delete state.hardWords[card.kr];
+    state.wordFamiliarity[card.kr]=Math.min(3,(state.wordFamiliarity[card.kr]||0)+2);
+    state.wordsStudied[card.kr]=true;
+    state.totalAnswered++; state.totalCorrect++;
+    state.missions.vocab=(state.missions.vocab||0)+1;
+    addXP(10);
+    if(state.missions.vocab===10){ addXP(150); showToast('✅ 每日單字任務完成！+150 XP'); }
+  }
+  saveState();
+  vocabIdx++;
+  if(vocabIdx>=vocabDeck.length){ vocabIdx=0; showToast('🎊 這類別學完一輪！'); loadVocabDeck(); renderReviewList(); return; }
+  showVocabCard();
+  renderReviewList();
+}
+
+function updateVocabProgress(){
+  const total=vocabDeck.length;
+  const pct=total?(vocabIdx/total*100):0;
+  document.getElementById('vp-fill').style.width=pct+'%';
+  document.getElementById('vocab-counter').textContent=vocabIdx+' / '+total;
+}
+
+function renderReviewList(){
+  const hardList=Object.keys(state.hardWords);
+  const sec=document.getElementById('review-section');
+  const list=document.getElementById('review-list');
+  const count=document.getElementById('review-count');
+  if(hardList.length===0){ sec.style.display='none'; return; }
+  sec.style.display='block';
+  count.textContent=hardList.length;
+  const allWords=Object.values(VOCAB).flat();
+  list.innerHTML=hardList.map(kr=>{
+    const w=allWords.find(x=>x.kr===kr);
+    if(!w) return '';
+    return `<div class="review-item">
+      <div><div class="review-kr">${w.kr}</div><div style="font-size:12px;color:var(--text3)">${w.rom}</div></div>
+      <div class="review-zh">${w.zh}</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════
+// READING
+// ═══════════════════════════
+let readingCat=0,readingQIdx=0,readingAnswered=false;
+
+function initReading(){
+  const cats=READING_DATA.map(r=>r.cat);
+  document.getElementById('reading-cats').innerHTML=cats.map((c,i)=>
+    `<button class="rcat ${i===readingCat?'active':''}" onclick="switchReadingCat(${i})">${c}</button>`
+  ).join('');
+  readingQIdx=0; readingAnswered=false;
+  document.getElementById('r-total').textContent=READING_DATA[readingCat].questions.length;
+  showReading();
+}
+
+function switchReadingCat(i){ readingCat=i; initReading(); }
+
+function showReading(){
+  const data=READING_DATA[readingCat];
+  const q=data.questions[readingQIdx];
+  document.getElementById('r-num').textContent=readingQIdx+1;
+  readingAnswered=false;
+  document.getElementById('reading-content').innerHTML=`
+    <div class="reading-card">
+      <div class="reading-passage">
+        <div style="font-size:11px;color:var(--purple);font-weight:700;margin-bottom:8px">📄 閱讀文章</div>
+        ${data.passage}
+        <div style="font-size:11px;color:var(--text3);margin-top:8px;line-height:1.6">${data.passage_zh}</div>
+      </div>
+      <div class="reading-q">${readingQIdx+1}. ${q.q}</div>
+      <div class="reading-opts">
+        ${q.opts.map((o,i)=>`<button class="reading-opt" onclick="answerReading(${i})" id="ropt-${i}">
+          <span style="color:var(--text3);margin-right:6px">${['①','②','③','④'][i]}</span>${o}
+        </button>`).join('')}
+      </div>
+      <div class="reading-explain" id="reading-explain">💡 ${q.explain}</div>
+      <button class="reading-next" id="reading-next" onclick="nextReading()">
+        ${readingQIdx+1<data.questions.length?'下一題 →':'完成 🎊'}
+      </button>
+    </div>`;
+}
+
+function answerReading(idx){
+  if(readingAnswered) return;
+  readingAnswered=true;
+  const q=READING_DATA[readingCat].questions[readingQIdx];
+  const correct=idx===q.answer;
+  for(let i=0;i<q.opts.length;i++){
+    const el=document.getElementById('ropt-'+i);
+    if(i===q.answer) el.classList.add('correct');
+    else if(i===idx&&!correct) el.classList.add('wrong');
+    el.style.pointerEvents='none';
+  }
+  document.getElementById('reading-explain').classList.add('open');
+  document.getElementById('reading-next').classList.add('show');
+  if(correct){ state.totalCorrect++; addXP(20); }
+  else addXP(3);
+  state.totalAnswered++;
+  state.missions.reading=(state.missions.reading||0)+1;
+  if(state.missions.reading===3){ addXP(150); showToast('✅ 每日閱讀任務完成！+150 XP'); }
+  saveState();
+}
+
+function nextReading(){
+  const total=READING_DATA[readingCat].questions.length;
+  readingQIdx++;
+  if(readingQIdx>=total){
+    showToast('🎊 這組閱讀完成！');
+    readingQIdx=0;
+    switchReadingCat((readingCat+1)%READING_DATA.length);
+    return;
+  }
+  showReading();
+}
+
+// ═══════════════════════════
+// GAMES COMMON
+// ═══════════════════════════
+let currentGame=null,gameTimer=null,gameData={};
+
+function getRandomWords(n){
+  const all=Object.values(VOCAB).flat();
+  return [...all].sort(()=>Math.random()-.5).slice(0,n);
+}
+
+function startGame(type){
+  currentGame=type; state.gamesPlayed++; saveState();
+  document.getElementById('game-'+type).classList.add('open');
+  if(type==='match') initMatch();
+  if(type==='typing') initTyping();
+  if(type==='scramble') initScramble();
+  if(type==='fillblank') initFillblank();
+}
+
+function closeGame(type){
+  document.getElementById('game-'+type).classList.remove('open');
+  clearInterval(gameTimer); currentGame=null;
+}
+
+function endGame(type,score,details){
+  clearInterval(gameTimer);
+  const prev=state.highScores[type]||0;
+  const isNew=score>prev;
+  if(isNew){ state.highScores[type]=score; document.getElementById('score-'+type).textContent=score; }
+  state.missions.game=(state.missions.game||0)+1;
+  if(state.missions.game===1){ addXP(150); showToast('✅ 每日遊戲任務完成！+150 XP'); }
+  addXP(Math.min(score,200));
+  saveState();
+  document.getElementById('game-'+type).classList.remove('open');
+  const rs=document.getElementById('result-screen');
+  rs._game=type;
+  document.getElementById('result-emoji').textContent=score>50?'🏆':score>20?'🎉':'😊';
+  document.getElementById('result-title').textContent=isNew?'🏅 新紀錄！':'遊戲結束！';
+  document.getElementById('result-score').textContent=score;
+  document.getElementById('result-label').textContent=(details||'分數')+'　獲得 '+Math.min(score,200)+' XP';
+  rs.classList.add('open');
+}
+
+function playAgain(){ document.getElementById('result-screen').classList.remove('open'); if(document.getElementById('result-screen')._game) startGame(document.getElementById('result-screen')._game); }
+function closeResult(){ document.getElementById('result-screen').classList.remove('open'); }
+
+// ═══════════════════════════
+// MATCH GAME
+// ═══════════════════════════
+function initMatch(){
+  const words=getRandomWords(8);
+  gameData={matchWords:words,matchScore:0,matchPairs:0,matchSel:null,matchMatched:new Set(),matchTime:60};
+  document.getElementById('match-score').textContent=0;
+  document.getElementById('match-pairs').textContent=0;
+  const items=[...words.map((w,i)=>({id:'k'+i,text:w.kr,pair:i,type:'kr'})),
+               ...words.map((w,i)=>({id:'z'+i,text:w.zh.split('、')[0],pair:i,type:'zh'}))];
+  items.sort(()=>Math.random()-.5);
+  gameData.matchItems=items;
+  document.getElementById('match-grid').innerHTML=items.map(it=>
+    `<div class="match-card" id="mc-${it.id}" onclick="clickMatch('${it.id}')">${it.text}</div>`
+  ).join('');
+  clearInterval(gameTimer);
+  gameTimer=setInterval(()=>{
+    gameData.matchTime--;
+    document.getElementById('match-timer').textContent=gameData.matchTime;
+    if(gameData.matchTime<=0) endGame('match',gameData.matchScore,'配對 '+gameData.matchPairs+'/8 對');
+  },1000);
+}
+
+function clickMatch(id){
+  if(gameData.matchMatched.has(id)) return;
+  const item=gameData.matchItems.find(x=>x.id===id);
+  const el=document.getElementById('mc-'+id);
+  if(gameData.matchSel===null){
+    gameData.matchSel={id,item,el}; el.classList.add('selected');
+  } else {
+    const prev=gameData.matchSel;
+    if(prev.id===id){ prev.el.classList.remove('selected'); gameData.matchSel=null; return; }
+    if(prev.item.pair===item.pair&&prev.item.type!==item.type){
+      prev.el.classList.remove('selected'); prev.el.classList.add('matched');
+      el.classList.add('matched');
+      gameData.matchMatched.add(prev.id); gameData.matchMatched.add(id);
+      gameData.matchScore+=10+Math.floor(gameData.matchTime/5);
+      gameData.matchPairs++;
+      document.getElementById('match-score').textContent=gameData.matchScore;
+      document.getElementById('match-pairs').textContent=gameData.matchPairs;
+      if(gameData.matchPairs===8) endGame('match',gameData.matchScore,'全部配對完成！🎊');
+    } else {
+      el.classList.add('wrong'); prev.el.classList.add('wrong');
+      setTimeout(()=>{ el.classList.remove('wrong','selected'); prev.el.classList.remove('wrong','selected'); },600);
+    }
+    gameData.matchSel=null;
+  }
+}
+
+// ═══════════════════════════
+// TYPING GAME (no timer, manual confirm, answer stays visible)
+// ═══════════════════════════
+let typingDeck=[],typingIdx=0,typingScore=0,typingCorrect=0,typingWrong=0,typingRevealed=false;
+
+function initTyping(){
+  typingDeck=getRandomWords(20);
+  typingIdx=0; typingScore=0; typingCorrect=0; typingWrong=0; typingRevealed=false;
+  document.getElementById('typing-score').textContent=0;
+  document.getElementById('typing-correct').textContent=0;
+  document.getElementById('typing-wrong').textContent=0;
+  document.getElementById('typing-answer-reveal').className='typing-answer-reveal';
+  document.getElementById('typing-answer-reveal').style.display='none';
+  document.getElementById('typing-next-btn').className='typing-next-btn';
+  showTypingWord();
+  document.getElementById('typing-input').value='';
+  document.getElementById('typing-input').focus();
+  // Enter key confirm
+  document.getElementById('typing-input').onkeydown=function(e){ if(e.key==='Enter'&&!typingRevealed) checkTypingAnswer(); };
+}
+
+function showTypingWord(){
+  const w=typingDeck[typingIdx];
+  document.getElementById('typing-zh').textContent=w.zh.split('、')[0];
+  document.getElementById('typing-hint-rom').textContent='拼音提示：'+w.rom;
+  document.getElementById('typing-num').textContent=typingIdx+1;
+  document.getElementById('typing-answer-reveal').style.display='none';
+  document.getElementById('typing-answer-reveal').className='typing-answer-reveal';
+  document.getElementById('typing-next-btn').className='typing-next-btn';
+  document.getElementById('typing-input').value='';
+  typingRevealed=false;
+}
+
+function checkTypingAnswer(){
+  if(typingRevealed) return;
+  const input=document.getElementById('typing-input').value.trim();
+  const target=typingDeck[typingIdx].kr;
+  const correct=input===target;
+  typingRevealed=true;
+  const reveal=document.getElementById('typing-answer-reveal');
+  reveal.style.display='block';
+  if(correct){
+    typingCorrect++; typingScore+=10;
+    reveal.className='typing-answer-reveal ok';
+    reveal.textContent='✅ 正確！'+target;
+    document.getElementById('typing-correct').textContent=typingCorrect;
+  } else {
+    typingWrong++;
+    reveal.className='typing-answer-reveal bad';
+    reveal.innerHTML='❌ 你輸入：'+( input||'（空白）')+'<br>正確答案：<span style="color:var(--accent)">'+target+'</span>';
+    document.getElementById('typing-wrong').textContent=typingWrong;
+  }
+  document.getElementById('typing-score').textContent=typingScore;
+  document.getElementById('typing-next-btn').className='typing-next-btn show';
+}
+
+function nextTypingWord(){
+  typingIdx++;
+  if(typingIdx>=typingDeck.length){
+    endGame('typing',typingScore,'正確 '+typingCorrect+' / 錯誤 '+typingWrong);
+    return;
+  }
+  showTypingWord();
+}
+
+// ═══════════════════════════
+// SCRAMBLE GAME
+// ═══════════════════════════
+let scIdx=0,scScore=0,scPlaced=[],scAnswered=false;
+
+function initScramble(){
+  scIdx=0; scScore=0; showScramble();
+}
+
+function showScramble(){
+  const q=SCRAMBLE_DATA[scIdx];
+  scPlaced=[]; scAnswered=false;
+  document.getElementById('sc-num').textContent=scIdx+1;
+  document.getElementById('sc-zh').textContent=q.zh;
+  document.getElementById('sc-result').className='scramble-result';
+  document.getElementById('sc-next').style.display='none';
+  // shuffle tokens
+  const tokens=[...q.tokens].sort(()=>Math.random()-.5);
+  document.getElementById('sc-drop').innerHTML='<span style="color:var(--text3);font-size:12px">點詞彙加入這裡</span>';
+  document.getElementById('sc-tokens').innerHTML=tokens.map((t,i)=>
+    `<button class="scramble-token" id="sc-tok-${i}" onclick="placeToken('${t}',${i})">${t}</button>`
+  ).join('');
+}
+
+function placeToken(text,i){
+  const el=document.getElementById('sc-tok-'+i);
+  if(el.classList.contains('used')) return;
+  el.classList.add('used');
+  scPlaced.push({text,i});
+  const drop=document.getElementById('sc-drop');
+  if(scPlaced.length===1) drop.innerHTML='';
+  const span=document.createElement('button');
+  span.className='scramble-token placed';
+  span.textContent=text;
+  span.onclick=()=>removeToken(text,i,span);
+  drop.appendChild(span);
+}
+
+function removeToken(text,i,span){
+  scPlaced=scPlaced.filter(x=>!(x.text===text&&x.i===i));
+  span.remove();
+  const el=document.getElementById('sc-tok-'+i);
+  if(el) el.classList.remove('used');
+  if(scPlaced.length===0) document.getElementById('sc-drop').innerHTML='<span style="color:var(--text3);font-size:12px">點詞彙加入這裡</span>';
+}
+
+function resetScramble(){
+  scPlaced=[];
+  document.getElementById('sc-drop').innerHTML='<span style="color:var(--text3);font-size:12px">點詞彙加入這裡</span>';
+  document.querySelectorAll('.scramble-token').forEach(el=>el.classList.remove('used'));
+}
+
+function checkScramble(){
+  if(scAnswered) return;
+  const q=SCRAMBLE_DATA[scIdx];
+  const userAns=scPlaced.map(x=>x.text).join(' ');
+  const correct=userAns===q.answer;
+  scAnswered=true;
+  const res=document.getElementById('sc-result');
+  res.classList.add('show');
+  if(correct){
+    scScore+=15; res.classList.add('ok');
+    res.innerHTML='✅ 正確！<br><span style="font-size:13px;color:var(--text2)">'+q.answer+'</span>';
+  } else {
+    scScore+=2; res.classList.add('bad');
+    res.innerHTML='❌ 正確順序：<br><span style="color:var(--accent)">'+q.answer+'</span>';
+  }
+  document.getElementById('sc-next').style.display='block';
+}
+
+function nextScramble(){
+  scIdx++;
+  if(scIdx>=SCRAMBLE_DATA.length){ endGame('scramble',scScore,SCRAMBLE_DATA.length+' 題完成'); return; }
+  showScramble();
+}
+
+// ═══════════════════════════
+// FILLBLANK (選擇題)
+// ═══════════════════════════
+let fbIdx=0,fbScore=0,fbDeck=[],fbAnswered=false;
+
+function initFillblank(){
+  fbDeck=[...FILLBLANK_BANK].sort(()=>Math.random()-.5);
+  fbIdx=0; fbScore=0; showFillblank();
+}
+
+function showFillblank(){
+  const q=fbDeck[fbIdx];
+  fbAnswered=false;
+  document.getElementById('fb-num').textContent=fbIdx+1;
+  document.getElementById('fb-question').textContent=q.q.replace('___','＿＿＿');
+  document.getElementById('fb-zh').textContent=q.zh;
+  document.getElementById('fb-result').style.display='none';
+  document.getElementById('fb-next').style.display='none';
+  // shuffle opts but remember correct index
+  const opts=q.opts.map((o,i)=>({text:o,isCorrect:o===q.blank}));
+  opts.sort(()=>Math.random()-.5);
+  document.getElementById('fb-options').innerHTML=opts.map((o,i)=>
+    `<button class="reading-opt" id="fbo-${i}" onclick="answerFillblank(${i},${o.isCorrect})">${['①','②','③','④'][i]} ${o.text}</button>`
+  ).join('');
+  document.getElementById('fb-options')._opts=opts;
+}
+
+function answerFillblank(idx,correct){
+  if(fbAnswered) return;
+  fbAnswered=true;
+  const opts=document.getElementById('fb-options')._opts;
+  for(let i=0;i<opts.length;i++){
+    const el=document.getElementById('fbo-'+i);
+    if(opts[i].isCorrect) el.classList.add('correct');
+    else if(i===idx&&!correct) el.classList.add('wrong');
+    el.style.pointerEvents='none';
+  }
+  const q=fbDeck[fbIdx];
+  const res=document.getElementById('fb-result');
+  res.style.display='block';
+  if(correct){ fbScore+=20; state.totalCorrect++; res.innerHTML='<span style="color:var(--green);font-weight:700">✅ 正確！</span> 答案：'+q.blank+'<br><small style="color:var(--text2)">'+q.explanation+'</small>'; }
+  else { fbScore+=2; res.innerHTML='<span style="color:var(--red);font-weight:700">❌</span> 正確答案：<span style="color:var(--accent)">'+q.blank+'</span><br><small style="color:var(--text2)">'+q.explanation+'</small>'; }
+  state.totalAnswered++;
+  document.getElementById('fb-next').style.display='block';
+  saveState();
+}
+
+function nextFillblank(){
+  fbIdx++;
+  if(fbIdx>=fbDeck.length){ endGame('fillblank',fbScore,fbDeck.length+' 題完成'); return; }
+  showFillblank();
+}
+
+// ═══════════════════════════
+// SPEAKING
+// ═══════════════════════════
+let shadowCat=0,shadowIdx=0,isRecording=false,recognition=null;
+let convHistory=[],convCtx=0,isConvRecording=false;
+
+function switchSpeakTab(tab){
+  document.getElementById('shadow-section').style.display=tab==='shadow'?'block':'none';
+  document.getElementById('conv-section').style.display=tab==='conv'?'block':'none';
+  document.getElementById('tab-shadow').className='speak-tab'+(tab==='shadow'?' active':'');
+  document.getElementById('tab-conv').className='speak-tab'+(tab==='conv'?' active':'');
+  if(tab==='conv'&&convHistory.length===0) startConv(0);
+}
+
+function loadShadow(cat){
+  shadowCat=cat; shadowIdx=0;
+  ['sh-tab-0','sh-tab-1','sh-tab-2'].forEach((id,i)=>{
+    document.getElementById(id).className='vtab'+(i===cat?' active':'');
+  });
+  showShadow();
+}
+
+function showShadow(){
+  const s=SHADOW_DATA[shadowCat][shadowIdx];
+  document.getElementById('shadow-kr').textContent=s.kr;
+  document.getElementById('shadow-rom').textContent=s.rom;
+  document.getElementById('shadow-zh').textContent=s.zh;
+  document.getElementById('speak-result').classList.remove('open');
+}
+
+function speakKorean(){
+  const s=SHADOW_DATA[shadowCat][shadowIdx];
+  if('speechSynthesis' in window){
+    const u=new SpeechSynthesisUtterance(s.kr);
+    u.lang='ko-KR'; u.rate=0.85;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(u);
+    showToast('🔊 播放中...');
+  } else { showToast('⚠️ 此裝置不支援語音合成'); }
+}
+
+function prevShadow(){ if(shadowIdx>0){shadowIdx--;showShadow();} }
+function nextShadow(){
+  if(shadowIdx<SHADOW_DATA[shadowCat].length-1){ shadowIdx++; showShadow(); }
+  else { showToast('🎊 這個情境學完了！'); loadShadow((shadowCat+1)%3); }
+}
+
+function toggleRecord(){
+  const btn=document.getElementById('record-btn');
+  if(!isRecording){
+    if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){ showToast('⚠️ 請用 Chrome 瀏覽器'); return; }
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    recognition=new SR();
+    recognition.lang='ko-KR'; recognition.interimResults=false;
+    recognition.onresult=(e)=>{
+      const said=e.results[0][0].transcript;
+      const target=SHADOW_DATA[shadowCat][shadowIdx].kr;
+      const pct=Math.round(similarity(said,target)*100);
+      const res=document.getElementById('speak-result');
+      res.classList.add('open');
+      res.innerHTML=`<div style="font-weight:700;color:${pct>70?'var(--green)':pct>40?'var(--accent)':'var(--red)'}">相似度：${pct}%</div>
+        <div style="margin-top:6px">你說：<span style="color:var(--text)">${said}</span></div>
+        <div>原句：<span style="color:var(--accent)">${target}</span></div>
+        <div style="color:var(--text2);font-size:12px;margin-top:4px">${pct>70?'發音很棒！':pct>40?'繼續練習！':'多聽幾次再試試！'}</div>`;
+      if(pct>40){ state.missions.speak=(state.missions.speak||0)+1; addXP(10); saveState(); }
+      if(state.missions.speak>=5) showToast('✅ 每日口說任務完成！');
+    };
+    recognition.onerror=()=>showToast('語音識別失敗，請再試');
+    recognition.onend=()=>{ isRecording=false; btn.textContent='🎤 開始跟讀'; btn.classList.remove('recording'); };
+    recognition.start();
+    isRecording=true; btn.textContent='⏹ 停止錄音'; btn.classList.add('recording');
+    showToast('🎤 錄音中...');
+  } else {
+    recognition&&recognition.stop();
+    isRecording=false; btn.textContent='🎤 開始跟讀'; btn.classList.remove('recording');
+  }
+}
+
+function similarity(a,b){
+  a=a.replace(/\s/g,''); b=b.replace(/\s/g,'');
+  if(a===b) return 1;
+  let match=0;
+  for(let i=0;i<Math.min(a.length,b.length);i++) if(a[i]===b[i]) match++;
+  return match/Math.max(a.length,b.length);
+}
+
+function startConv(idx){
+  convCtx=idx; convHistory=[];
+  document.querySelectorAll('#conv-section .vtab').forEach((b,i)=>b.className='vtab'+(i===idx?' active':''));
+  document.getElementById('conv-messages').innerHTML='';
+  callConvAI('請開始對話情境，用韓語打招呼。');
+}
+
+function addConvMsg(role,ko,zh){
+  const msgs=document.getElementById('conv-messages');
+  const div=document.createElement('div');
+  div.className='msg '+role;
+  div.innerHTML=`<div class="ko">${ko}</div>${zh?`<div class="zh">${zh}</div>`:''}`;
+  msgs.appendChild(div); msgs.scrollTop=msgs.scrollHeight;
+}
+
+async function callConvAI(userMsg){
+  const msgs=document.getElementById('conv-messages');
+  const loadDiv=document.createElement('div');
+  loadDiv.className='msg ai';
+  loadDiv.innerHTML='<div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+  msgs.appendChild(loadDiv); msgs.scrollTop=msgs.scrollHeight;
+  convHistory.push({role:'user',content:userMsg});
+  try {
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':'','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:300,system:CONV_CONTEXTS[convCtx].prompt,messages:convHistory})
+    });
+    const data=await resp.json();
+    const text=data.content?.[0]?.text||'...';
+    convHistory.push({role:'assistant',content:text});
+    loadDiv.remove();
+    const lines=text.split('\n').filter(l=>l.trim());
+    let ko='',zh='';
+    lines.forEach(l=>{
+      if(l.startsWith('【韓語】')) ko=l.replace('【韓語】','').trim();
+      else if(l.startsWith('【翻譯：')) zh=l.replace('【翻譯：','').replace('】','').trim();
+      else if(!ko) ko=l;
+    });
+    addConvMsg('ai',ko||text,zh);
+    state.missions.speak=(state.missions.speak||0)+1;
+    addXP(5); saveState();
+  } catch(e){
+    loadDiv.remove();
+    addConvMsg('ai','⚠️ 連線失敗，請確認網路後重試','');
+  }
+}
+
+async function sendConvMsg(){
+  const input=document.getElementById('conv-input');
+  const msg=input.value.trim();
+  if(!msg) return;
+  input.value='';
+  addConvMsg('user',msg,'');
+  await callConvAI(msg);
+}
+
+function toggleConvRecord(){
+  const btn=document.getElementById('conv-rec-btn');
+  if(!isConvRecording){
+    if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){ showToast('⚠️ 請用 Chrome'); return; }
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    const r=new SR(); r.lang='ko-KR';
+    r.onresult=(e)=>{ document.getElementById('conv-input').value=e.results[0][0].transcript; };
+    r.onend=()=>{ isConvRecording=false; btn.textContent='🎤'; };
+    r.start(); isConvRecording=true; btn.textContent='⏹';
+    showToast('🎤 請說韓語...');
+  } else { isConvRecording=false; btn.textContent='🎤'; }
+}
+
+// ═══════════════════════════
+// PROFILE
+// ═══════════════════════════
+function initProfile(){
+  const wc=Object.keys(state.wordsStudied).length;
+  document.getElementById('ps-streak').textContent=state.streak;
+  document.getElementById('ps-words').textContent=wc;
+  document.getElementById('ps-correct').textContent=state.totalAnswered?Math.round(state.totalCorrect/state.totalAnswered*100)+'%':'-%';
+  document.getElementById('ps-days').textContent=state.totalDays;
+  updateXPUI();
+  const hm=document.getElementById('heatmap');
+  let cells='';
+  for(let i=69;i>=0;i--){
+    const d=new Date(Date.now()-i*86400000).toDateString();
+    const v=state.heatmap[d]||0;
+    const lvl=v===0?'':v<3?'l1':v<5?'l2':v<8?'l3':'l4';
+    cells+=`<div class="hm-cell ${lvl}"></div>`;
+  }
+  hm.innerHTML=cells;
+  document.getElementById('badges-grid').innerHTML=BADGES.map(b=>
+    `<div class="badge-item ${state.unlockedBadges.includes(b.cond)?'':'locked'}">
+      <div>${b.emoji}</div><div class="badge-label">${b.label}</div>
+    </div>`
+  ).join('');
+  Object.keys(state.highScores).forEach(g=>{
+    const el=document.getElementById('score-'+g);
+    if(el) el.textContent=state.highScores[g]||0;
+  });
+}
+
+// ═══════════════════════════
+// INIT
+// ═══════════════════════════
+loadState();
+refreshHome();
+</script>
+</body>
+</html>
